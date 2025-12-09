@@ -12,6 +12,9 @@ public class AuthResponseDto
     public DateTime ExpiresAt { get; set; }
 
     public string Email { get; set; } = string.Empty;
+    public bool Success { get; set; } = true;
+    public string ErrorMessage { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
     public string UserId { get; set; } = string.Empty;
 }
 

@@ -97,9 +97,31 @@ public class AuthenticationService : IAuthenticationService
         return await _tokenService.GenerateTokensAsync(user, "127.0.0.1"); // Placeholder IP
     }
 
-    public Task LoginAsync(LoginDto request)
+    public async Task LogoutAsync()
     {
-        throw new NotImplementedException(); 
+        await _signInManager.SignOutAsync();
+    }
+
+    public async Task<AuthResponseDto> LoginAsync(LoginDto request)
+    {
+         var user = await _userManager.FindByEmailAsync(request.Email);
+         if (user == null) 
+             return new AuthResponseDto { Success = false, ErrorMessage = "Invalid credentials" };
+
+         var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+         if (!result.Succeeded)
+             return new AuthResponseDto { Success = false, ErrorMessage = "Invalid credentials" };
+
+         var tokens = await _tokenService.GenerateTokensAsync(user, "127.0.0.1");
+         tokens.Success = true;
+         tokens.FullName = $"{user.FirstName} {user.LastName}";
+         return tokens;
+    }
+
+    public async Task<AuthResponseDto> GetCurrentUserAsync()
+    {
+         // Mock implementation for build pass
+         return new AuthResponseDto { Success = false, ErrorMessage = "Not implemented" };
     }
 
     public Task RefreshTokenAsync(RefreshTokenRequestDto request)

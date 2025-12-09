@@ -9,7 +9,9 @@ public interface IAuthenticationService // Renaming for consistency with Fronten
 {
     Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request);
     Task<AuthResponseDto> RegisterEmployeeAsync(EmployeeRegistrationDto request);
-    Task LoginAsync(LoginDto request);
+    Task<AuthResponseDto> LoginAsync(LoginDto request);
+    Task LogoutAsync();
+    Task<AuthResponseDto> GetCurrentUserAsync();
     Task RefreshTokenAsync(RefreshTokenRequestDto request);
     Task RevokeTokenAsync(string token);
     Task ConfirmEmailAsync(string userId, string token);
