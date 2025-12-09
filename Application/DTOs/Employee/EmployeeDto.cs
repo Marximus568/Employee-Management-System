@@ -20,4 +20,7 @@ public class EmployeeDto
     public string Status { get; set; }
     public int DepartmentId { get; set; }
     public string DepartmentName { get; set; }
+    
+    public string ProfessionalProfile { get; set; }
+    public List<EmployeeEducationDto> EducationRecords { get; set; } = new();
 }

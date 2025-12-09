@@ -47,6 +47,7 @@ public class EmployeeService : IEmployeeService
     {
         var employee = await _context.Employees
             .Include(e => e.Department)
+            .Include(e => e.EducationRecords)
             .FirstOrDefaultAsync(e => e.Email == email);
 
         return employee == null ? null : _mapper.Map<EmployeeDto>(employee);

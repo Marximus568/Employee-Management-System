@@ -25,6 +25,9 @@ public class MappingProfile : Profile
         // Department
         CreateMap<Department, DepartmentDto>();
 
+        // Education
+        CreateMap<EmployeeEducation, EmployeeEducationDto>();
+
         // Summary DTO (for pagination)
         CreateMap<Employee, EmployeeSummaryDto>()
             .ForMember(dest => dest.FullName, 

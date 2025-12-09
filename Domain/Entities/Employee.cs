@@ -15,4 +15,6 @@ public class Employee : Person
     public Department Department { get; set; }
 
     public ICollection<EmployeeEducation> EducationRecords { get; set; }
+    
+    public string ProfessionalProfile { get; set; }
 }

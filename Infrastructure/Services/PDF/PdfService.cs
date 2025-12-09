@@ -35,17 +35,70 @@ public class PdfService : IPdfService
                     {
                         x.Spacing(20);
 
-                        x.Item().Text($"Position: {employee.Position}");
-                        x.Item().Text($"Department: {employee.DepartmentName}");
-                        x.Item().Text($"Email: {employee.Email}");
-                        x.Item().Text($"Phone: {employee.Phone}");
-                        x.Item().Text($"Hire Date: {employee.HireDate:yyyy-MM-dd}");
-                        
-                        x.Item().LineHorizontal(1).LineColor(Colors.Grey.Medium);
-                        
-                        x.Item().Text("Professional Details").Bold().FontSize(16);
-                        x.Item().Text($"Salary: {employee.Salary:C}");
-                        x.Item().Text($"Status: {employee.Status}");
+                        // Personal Info Section
+                        x.Item().Text("Personal Information").Bold().FontSize(14).FontColor(Colors.Grey.Darken2);
+                        x.Item().Row(row => 
+                        {
+                            row.RelativeItem().Column(c => 
+                            {
+                                c.Item().Text(text => { text.Span("ID: ").Bold(); text.Span(employee.Document); });
+                                c.Item().Text(text => { text.Span("Email: ").Bold(); text.Span(employee.Email); });
+                                c.Item().Text(text => { text.Span("Phone: ").Bold(); text.Span(employee.Phone); });
+                            });
+                            row.RelativeItem().Column(c => 
+                            {
+                                c.Item().Text(text => { text.Span("Address: ").Bold(); text.Span(employee.Address); });
+                                c.Item().Text(text => { text.Span("Birth Date: ").Bold(); text.Span(employee.BirthDate.ToString("yyyy-MM-dd")); });
+                                c.Item().Text(text => { text.Span("Age: ").Bold(); text.Span((DateTime.Now.Year - employee.BirthDate.Year).ToString()); });
+                            });
+                        });
+
+                        x.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+
+                        // Work Info Section
+                        x.Item().Text("Employment Details").Bold().FontSize(14).FontColor(Colors.Grey.Darken2);
+                        x.Item().Row(row => 
+                        {
+                            row.RelativeItem().Column(c => 
+                            {
+                                c.Item().Text(text => { text.Span("Position: ").Bold(); text.Span(employee.Position); });
+                                c.Item().Text(text => { text.Span("Department: ").Bold(); text.Span(employee.DepartmentName); });
+                            });
+                            row.RelativeItem().Column(c => 
+                            {
+                                c.Item().Text(text => { text.Span("Hire Date: ").Bold(); text.Span(employee.HireDate.ToString("yyyy-MM-dd")); });
+                                c.Item().Text(text => { text.Span("Status: ").Bold(); text.Span(employee.Status); });
+                                c.Item().Text(text => { text.Span("Salary: ").Bold(); text.Span(employee.Salary.ToString("C")); });
+                            });
+                        });
+
+                        x.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+
+                        // Professional Profile
+                        if (!string.IsNullOrWhiteSpace(employee.ProfessionalProfile))
+                        {
+                            x.Item().Text("Professional Profile").Bold().FontSize(14).FontColor(Colors.Grey.Darken2);
+                            x.Item().Text(employee.ProfessionalProfile).Justify();
+                            x.Item().PaddingVertical(5).LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+                        }
+
+                        // Education Section
+                        if (employee.EducationRecords != null && employee.EducationRecords.Any())
+                        {
+                            x.Item().Text("Education").Bold().FontSize(14).FontColor(Colors.Grey.Darken2);
+                            foreach (var method in employee.EducationRecords)
+                            {
+                                x.Item().Row(r => 
+                                {
+                                    r.RelativeItem().Column(c => 
+                                    {
+                                        c.Item().Text(method.Institution).Bold();
+                                        c.Item().Text($"{method.Degree} - {method.City}").FontSize(10);
+                                    });
+                                    r.AutoItem().Text($"{method.StartDate:yyyy} - {(method.EndDate.HasValue ? method.EndDate.Value.ToString("yyyy") : "Present")}");
+                                });
+                            }
+                        }
                     });
 
                 page.Footer()

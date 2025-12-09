@@ -72,6 +72,24 @@ services:
     networks:
       - firm-network
 
+      # ==========================================
+  # TEST SERVICE
+  # ==========================================
+  test-express:
+    build:
+      context: .
+      dockerfile: Test_Express/Dockerfile
+    container_name: firm-test
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DB_CONNECTION=Server=postgres;Port=5432;Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASS};
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - firm-network
+    command: ["dotnet", "test", "Test_Express/Test_Express.csproj"]
+
 volumes:
   dbdata:
 
