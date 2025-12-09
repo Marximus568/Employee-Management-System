@@ -5,25 +5,14 @@ namespace Application.Interfaces.Identity;
 /// <summary>
 /// Interface for authentication operations
 /// </summary>
-public interface IAuthenticationService
+public interface IAuthenticationService // Renaming for consistency with Frontend usage
 {
-    /// <summary>
-    /// Authenticates a user with email and password
-    /// </summary>
-    Task<AuthResult> LoginAsync(LoginDto dto);
-
-    /// <summary>
-    /// Signs out the current user
-    /// </summary>
-    Task LogoutAsync();
-
-    /// <summary>
-    /// Gets the currently authenticated user
-    /// </summary>
-    Task<UserDto?> GetCurrentUserAsync();
-
-    /// <summary>
-    /// Checks if a user is authenticated
-    /// </summary>
-    Task<bool> IsAuthenticatedAsync();
+    Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request);
+    Task<AuthResponseDto> RegisterEmployeeAsync(EmployeeRegistrationDto request);
+    Task LoginAsync(LoginDto request);
+    Task RefreshTokenAsync(RefreshTokenRequestDto request);
+    Task RevokeTokenAsync(string token);
+    Task ConfirmEmailAsync(string userId, string token);
+    Task ForgotPasswordAsync(string email);
+    Task ResetPasswordAsync(string email, string token, string newPassword);
 }

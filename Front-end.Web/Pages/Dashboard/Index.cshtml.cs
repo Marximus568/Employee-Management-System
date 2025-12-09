@@ -1,5 +1,6 @@
 using Application.Interfaces;
 using Application.Interfaces.Identity;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -8,12 +9,12 @@ namespace Front_end.Web.Pages.Dashboard;
 [Authorize]
 public class IndexModel : PageModel
 {
-    private readonly IAuthenticationService _authService;
+    private readonly Application.Interfaces.Identity.IAuthenticationService _authService;
 
     public string UserName { get; set; } = "User";
     public string UserRole { get; set; } = "User";
 
-    public IndexModel(IAuthenticationService authService)
+    public IndexModel(Application.Interfaces.Identity.IAuthenticationService authService)
     {
         _authService = authService;
     }

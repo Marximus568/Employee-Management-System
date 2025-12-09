@@ -1,20 +1,42 @@
+using Infrastructure;
+using Infrastructure.Persistence.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Add services to the container
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Add all Infrastructure, Application and Domain layers
+builder.Services.AddInfrastructure(builder.Configuration);
+
+// Add Authorization
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+// Apply database migrations and seed data on startup
+try
+{
+    await app.Services.ApplyMigrationsAndSeedAsync();
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "An error occurred while applying migrations or seeding the database.");
+    // Continue startup even if migrations fail
+}
+
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 
 var summaries = new[]
 {

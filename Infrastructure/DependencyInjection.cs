@@ -1,12 +1,17 @@
 using Application.Interfaces;
 using Application.Interfaces.AI;
 using Application.Interfaces.Identity;
+using Application.Interfaces.SMTP;
 using Infrastructure.AI;
 using Infrastructure.Models;
-using Infrastructure.Persistence.Context;
+using Infrastructure.Persistence;
+using Infrastructure.Services;
+using Infrastructure.Services.EmployeeService;
 using Infrastructure.Services.Identity;
+using Infrastructure.Services.Identity.Interface;
+using Infrastructure.Services.Jwt;
+using Infrastructure.Services.SMTP;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -24,21 +29,14 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         // ========================================
-        // DATABASE CONFIGURATION
+        // JWT CONFIGURATION
         // ========================================
-        
-        // Application Database Context
-        services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(
-                configuration.GetConnectionString("DefaultConnection"),
-                b => b.MigrationsAssembly("Infrastructure")));
+        services.Configure<Domain.Entities.JwtSettings>(configuration.GetSection("JwtSettings"));
 
-        // Identity Database Context (separate)
-        services.AddDbContext<IdentityDbContext>(options =>
-            options.UseNpgsql(
-                configuration.GetConnectionString("IdentityConnection") 
-                ?? configuration.GetConnectionString("DefaultConnection"),
-                b => b.MigrationsAssembly("Infrastructure")));
+        // ========================================
+        // PERSISTENCE CONFIGURATION (Database & Migrations)
+        // ========================================
+        services.AddPersistence(configuration);
 
         // ========================================
         // IDENTITY CONFIGURATION
@@ -61,7 +59,7 @@ public static class DependencyInjection
             options.User.RequireUniqueEmail = true;
             options.SignIn.RequireConfirmedEmail = false; // Set to true in production
         })
-        .AddEntityFrameworkStores<IdentityDbContext>()
+        .AddEntityFrameworkStores<Persistence.Context.ApplicationDbContext>()
         .AddDefaultTokenProviders();
 
         // Configure cookie authentication
@@ -77,6 +75,7 @@ public static class DependencyInjection
         // ========================================
         // AUTHENTICATION SERVICES
         // ========================================
+        services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
 
         // ========================================
@@ -116,14 +115,9 @@ public static class DependencyInjection
         // SMTP Email Service
         services.Configure<Services.SMTP.SmtpSettings>(configuration.GetSection("SmtpSettings"));
         services.AddScoped<Application.Interfaces.SMTP.IEmailService, Services.SMTP.SmtpEmailService>();
-        
-        // SMTP Adapter (optional - provides convenience methods)
-        // Uncomment to use the adapter instead of direct service:
-        // services.AddScoped<Services.SMTP.Adapter.SmtpEmailServiceAdapter>();
-        
-        // Add PDF, Excel services here when ready
-        // services.AddScoped<IPdfService, PdfService>();
-        // services.AddScoped<IExcelService, ExcelService>();
+
+        // Domain/Business Services
+        services.AddScoped<IEmployeeService, EmployeeService>();
 
         return services;
     }

@@ -1,7 +1,9 @@
 using Application.Interfaces;
 using Application.Interfaces.Identity;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using IAuthenticationService = Application.Interfaces.Identity.IAuthenticationService;
 
 namespace Front_end.Web.Pages;
 
