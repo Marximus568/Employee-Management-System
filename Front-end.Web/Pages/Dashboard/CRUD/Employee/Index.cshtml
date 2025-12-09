@@ -1,0 +1,61 @@
+@page
+@model Front_end.Web.Pages.Dashboard.CRUD.Employee.IndexModel
+
+@{
+    ViewData["Title"] = "Employees";
+    Layout = "_DashboardLayout";
+}
+
+<div class="crud-header">
+    <h1>Employees</h1>
+    <a asp-page="Create" class="action-btn" style="background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+        <i class="fas fa-plus"></i> Create New
+    </a>
+</div>
+
+<div class="crud-table-container">
+    <table class="table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background-color: #f8f9fa; border-bottom: 2px solid #e9ecef;">
+                <th style="padding: 12px; text-align: left;">Name</th>
+                <th style="padding: 12px; text-align: left;">Document</th>
+                <th style="padding: 12px; text-align: left;">Email</th>
+                <th style="padding: 12px; text-align: left;">Department</th>
+                <th style="padding: 12px; text-align: left;">Position</th>
+                <th style="padding: 12px; text-align: left;">Status</th>
+                <th style="padding: 12px; text-align: center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Employee) {
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 12px;">
+                        @Html.DisplayFor(modelItem => item.FirstName) @Html.DisplayFor(modelItem => item.LastName)
+                    </td>
+                    <td style="padding: 12px;">
+                        @Html.DisplayFor(modelItem => item.Document)
+                    </td>
+                    <td style="padding: 12px;">
+                        @Html.DisplayFor(modelItem => item.Email)
+                    </td>
+                    <td style="padding: 12px;">
+                        @Html.DisplayFor(modelItem => item.Department.Name)
+                    </td>
+                    <td style="padding: 12px;">
+                        @Html.DisplayFor(modelItem => item.Position)
+                    </td>
+                    <td style="padding: 12px;">
+                        <span style="padding: 5px 10px; border-radius: 15px; font-size: 0.85em; background-color: @(item.Status == "Active" ? "#d4edda" : "#f8d7da"); color: @(item.Status == "Active" ? "#155724" : "#721c24");">
+                            @Html.DisplayFor(modelItem => item.Status)
+                        </span>
+                    </td>
+                    <td style="padding: 12px; text-align: center;">
+                        <a asp-page="./Edit" asp-route-id="@item.Id" style="color: #f39c12; margin-right: 10px;"><i class="fas fa-edit"></i></a>
+                        <a asp-page="./Details" asp-route-id="@item.Id" style="color: #3498db; margin-right: 10px;"><i class="fas fa-info-circle"></i></a>
+                        <a asp-page="./Delete" asp-route-id="@item.Id" style="color: #e74c3c;"><i class="fas fa-trash-alt"></i></a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -15,12 +15,14 @@ public class EmployeesController : ControllerBase
     private readonly IEmployeeService _employeeService;
     private readonly IMapper _mapper;
     private readonly Application.Interfaces.PDF.IPdfService _pdfService;
+    private readonly Application.Interfaces.Excel.IExcelService _excelService;
 
-    public EmployeesController(IEmployeeService employeeService, IMapper mapper, Application.Interfaces.PDF.IPdfService pdfService)
+    public EmployeesController(IEmployeeService employeeService, IMapper mapper, Application.Interfaces.PDF.IPdfService pdfService, Application.Interfaces.Excel.IExcelService excelService)
     {
         _employeeService = employeeService;
         _mapper = mapper;
         _pdfService = pdfService;
+        _excelService = excelService;
     }
 
     /// <summary>
@@ -144,5 +146,28 @@ public class EmployeesController : ControllerBase
         var deleted = await _employeeService.DeleteEmployeeAsync(id);
 
         return deleted ? NoContent() : NotFound();
+    }
+    /// <summary>
+    /// Imports employees from an Excel file.
+    /// </summary>
+    /// <param name="file">The Excel file to upload.</param>
+    [HttpPost("import")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ImportEmployees(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest("No file uploaded.");
+
+        try
+        {
+            await _excelService.ImportEmployeesAsync(file.OpenReadStream());
+            return Ok("Employees imported successfully.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error importing employees: {ex.Message}");
+        }
     }
 }

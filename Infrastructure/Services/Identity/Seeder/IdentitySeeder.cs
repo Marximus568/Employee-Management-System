@@ -23,8 +23,8 @@ public static class IdentitySeeder
 
     private static async Task SeedRolesAsync(RoleManager<ApplicationRole> roleManager)
     {
-        string[] roleNames = { "Admin", "User" };
-        string[] roleDescriptions = { "Administrator with full access", "Regular user with limited access" };
+        string[] roleNames = { "Admin", "User", "Employee" };
+        string[] roleDescriptions = { "Administrator with full access", "Regular user with limited access", "Employee with access to personal data" };
 
         for (int i = 0; i < roleNames.Length; i++)
         {

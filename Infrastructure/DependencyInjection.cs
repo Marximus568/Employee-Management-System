@@ -48,13 +48,9 @@ public static class DependencyInjection
                 ? expiry 
                 : 15
         };
-        services.Configure<Domain.Entities.JwtSettings>(options =>
-        {
-            options.SecretKey = jwtSettings.SecretKey;
-            options.Issuer = jwtSettings.Issuer;
-            options.Audience = jwtSettings.Audience;
-            options.ExpiryMinutes = jwtSettings.ExpiryMinutes;
-        });
+        
+        // Register as Singleton so it can be injected directly
+        services.AddSingleton(jwtSettings);
 
         // ========================================
         // JWT BEARER AUTHENTICATION CONFIGURATION
@@ -205,6 +201,10 @@ public static class DependencyInjection
         
         // PDF Service
         services.AddScoped<Application.Interfaces.PDF.IPdfService, Infrastructure.Services.PDF.PdfService>();
+
+        // Excel Service
+        services.AddScoped<Application.Interfaces.Excel.IExcelService, Infrastructure.Services.Excel.ExcelService>();
+
 
         return services;
     }
