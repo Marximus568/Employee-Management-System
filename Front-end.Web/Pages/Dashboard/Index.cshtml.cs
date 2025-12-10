@@ -1,8 +1,10 @@
 using Application.Interfaces;
 using Application.Interfaces.Identity;
+using Infrastructure.Persistence.Context;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using IAuthenticationService = Application.Interfaces.Identity.IAuthenticationService;
 
 namespace Front_end.Web.Pages.Dashboard;
@@ -11,7 +13,7 @@ namespace Front_end.Web.Pages.Dashboard;
 public class IndexModel : PageModel
 {
     private readonly Application.Interfaces.Identity.IAuthenticationService _authService;
-    private readonly Microsoft.AspNetCore.Identity.UserManager<Infrastructure.Models.ApplicationUser> _userManager;
+    private readonly ApplicationDbContext _context;
 
     public string UserName { get; set; } = "User";
     public string UserRole { get; set; } = "User";
@@ -22,10 +24,10 @@ public class IndexModel : PageModel
 
     public IndexModel(
         Application.Interfaces.Identity.IAuthenticationService authService,
-        Microsoft.AspNetCore.Identity.UserManager<Infrastructure.Models.ApplicationUser> userManager)
+        ApplicationDbContext context)
     {
         _authService = authService;
-        _userManager = userManager;
+        _context = context;
     }
 
     public async Task OnGetAsync()
@@ -37,9 +39,9 @@ public class IndexModel : PageModel
             UserRole = user.Role;
         }
 
-        // Fetch Stats
-        TotalUsers = _userManager.Users.Count();
-        ActiveUsers = _userManager.Users.Count(u => u.IsActive);
-        InactiveUsers = _userManager.Users.Count(u => !u.IsActive);
+        // Fetch Employee Stats (not Identity Users)
+        TotalUsers = await _context.Employees.CountAsync();
+        ActiveUsers = await _context.Employees.CountAsync(e => e.Status == "Active");
+        InactiveUsers = await _context.Employees.CountAsync(e => e.Status != "Active");
     }
 }

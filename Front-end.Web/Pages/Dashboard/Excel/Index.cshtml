@@ -11,37 +11,6 @@
 </div>
 
 <div class="grid grid-2">
-    <!-- Data Export Card -->
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">
-                <i class="fas fa-file-export" style="color: var(--color-success); margin-right: 10px;"></i>
-                Data Export
-            </h3>
-        </div>
-        <div class="card-body">
-            <p>Export system data to Excel format (.xlsx) for analysis.</p>
-            <div class="form-group">
-                <label class="form-label">Data Source</label>
-                <select class="form-control">
-                    <option>Employees</option>
-                    <option>Departments</option>
-                    <option>Attendance Records</option>
-                    <option>Sales Data</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Include Inactive Records</label>
-                <div class="flex-center" style="justify-content: flex-start; gap: 10px;">
-                    <input type="checkbox" id="includeInactive" style="width: 20px; height: 20px;">
-                    <label for="includeInactive" style="margin: 0; font-weight: normal;">Yes, include inactive</label>
-                </div>
-            </div>
-            <button class="btn btn-success" style="width: 100%; background-color: #10b981; border-color: #10b981; color: white;">
-                <i class="fas fa-file-excel"></i> Export to Excel
-            </button>
-        </div>
-    </div>
 
     <!-- Bulk Import Card -->
     <div class="card">
@@ -68,12 +37,9 @@
                     <input type="file" asp-for="Upload" class="form-control" accept=".xlsx" style="padding: 10px; height: auto;" />
                     <p style="margin-top: 5px; font-size: 0.8rem; color: var(--color-gray-400);">.xlsx files only</p>
                 </div>
-                <div class="flex-between">
-                    <a href="#" style="font-size: 0.9rem; text-decoration: underline;">Download Template</a>
-                    <button type="submit" asp-page-handler="Import" class="btn btn-primary">
-                        <i class="fas fa-upload"></i> Import
-                    </button>
-                </div>
+                <button type="submit" asp-page-handler="Import" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-upload"></i> Importar Excel
+                </button>
             </form>
         </div>
     </div>
