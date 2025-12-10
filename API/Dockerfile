@@ -15,6 +15,7 @@ WORKDIR /src
 # Copy project files and restore dependencies
 COPY ["API/API.csproj", "API/"]
 COPY ["Application/Application.csproj", "Application/"]
+COPY ["Domain/Domain.csproj", "Domain/"]
 COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 RUN dotnet restore "API/API.csproj"
 

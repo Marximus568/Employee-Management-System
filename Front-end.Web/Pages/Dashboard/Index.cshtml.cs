@@ -41,7 +41,9 @@ public class IndexModel : PageModel
 
         // Fetch Employee Stats (not Identity Users)
         TotalUsers = await _context.Employees.CountAsync();
-        ActiveUsers = await _context.Employees.CountAsync(e => e.Status == "Active");
-        InactiveUsers = await _context.Employees.CountAsync(e => e.Status != "Active");
+        ActiveUsers = await _context.Employees.CountAsync(e => 
+            e.Status != null && e.Status.ToLower() == "activo");
+        InactiveUsers = await _context.Employees.CountAsync(e => 
+            e.Status != null && e.Status.ToLower() == "inactivo");
     }
 }

@@ -125,7 +125,7 @@ public class ExcelService : IExcelService
                     Email = row.Email,
                     Phone = row.Phone,
                     Address = row.Address,
-                    Status = !string.IsNullOrEmpty(row.Status) ? row.Status : "Active",
+                    Status = NormalizeStatus(row.Status),
                     HireDate = DateOnly.FromDateTime(DateTime.Now),
                     EducationRecords = new List<EmployeeEducation>()
                 };
@@ -148,7 +148,7 @@ public class ExcelService : IExcelService
             // Update Employee fields
             if (decimal.TryParse(row.Salary, out var sal)) employee.Salary = sal;
             if (!string.IsNullOrEmpty(row.Position)) employee.Position = row.Position;
-            if (!string.IsNullOrEmpty(row.Status)) employee.Status = row.Status;
+            if (!string.IsNullOrEmpty(row.Status)) employee.Status = NormalizeStatus(row.Status);
             
             if (DateTime.TryParse(row.HireDate, out var hd)) 
                 employee.HireDate = DateOnly.FromDateTime(hd);
@@ -218,5 +218,24 @@ public class ExcelService : IExcelService
             }
         }
         return null; // Not found
+    }
+
+    /// <summary>
+    /// Normalizes status values to standard format (Activo, Inactivo, Vacaciones, etc.)
+    /// </summary>
+    private static string NormalizeStatus(string? status)
+    {
+        if (string.IsNullOrWhiteSpace(status)) return "Activo";
+        
+        var normalized = status.Trim();
+        
+        // Normalize common status values
+        return normalized.ToLower() switch
+        {
+            "activo" or "active" => "Activo",
+            "inactivo" or "inactive" => "Inactivo",
+            "vacaciones" or "vacation" or "vacations" => "Vacaciones",
+            _ => char.ToUpper(normalized[0]) + normalized[1..].ToLower() // Capitalize first letter
+        };
     }
 }

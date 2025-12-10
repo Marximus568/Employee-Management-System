@@ -13,6 +13,9 @@ WORKDIR /src
 
 # Copy project files and restore
 COPY ["Test_Express/Test_Express.csproj", "Test_Express/"]
+COPY ["Application/Application.csproj", "Application/"]
+COPY ["Domain/Domain.csproj", "Domain/"]
+COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 RUN dotnet restore "Test_Express/Test_Express.csproj"
 
 # Copy all source files

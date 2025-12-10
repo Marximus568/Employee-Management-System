@@ -28,12 +28,12 @@ public class GeminiService : IAiService
     /// <param name="apiKey">The Google Gemini API key for authentication.</param>
     /// <param name="logger">Optional logger for debugging and monitoring.</param>
     /// <param name="httpClient">Optional HTTP client. If null, creates a new one.</param>
-    /// <param name="modelName">Model to use. Default: gemini-pro</param>
+    /// <param name="modelName">Model to use. Default: gemini-1.5-flash</param>
     public GeminiService(
         string apiKey, 
         ILogger<GeminiService>? logger = null,
         HttpClient? httpClient = null,
-        string modelName = "gemini-pro")
+        string modelName = "gemini-1.5-flash")
     {
         if (string.IsNullOrWhiteSpace(apiKey))
             throw new ArgumentException("API key cannot be null or empty.", nameof(apiKey));
