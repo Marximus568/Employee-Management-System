@@ -1,4 +1,6 @@
 ﻿using System;
+using Infrastructure.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,30 +14,7 @@ namespace Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // --- SEED ADMIN ---
-            var adminRoleId = 1;
-            var adminUserId = 1;
-
-// Insert role Admin
-            migrationBuilder.InsertData(
-                table: "Roles",
-                columns: new[] { "Id", "Description", "CreatedAt", "Name", "NormalizedName", "ConcurrencyStamp" },
-                values: new object[] { adminRoleId, "Administrator with full access", DateTime.UtcNow, "Admin", "ADMIN", "1" }
-            );
-
-// Insert user Admin (password en texto plano: Admin@123)
-            migrationBuilder.InsertData(
-                table: "Users",
-                columns: new[] { "Id", "FirstName", "LastName", "CreatedAt", "IsActive", "UserName", "NormalizedUserName", "Email", "NormalizedEmail", "EmailConfirmed", "PasswordHash", "SecurityStamp" },
-                values: new object[] { adminUserId, "Admin", "User", DateTime.UtcNow, true, "admin@expressfirmeza.com", "ADMIN@EXPRESSFIRMEZA.COM", "admin@expressfirmeza.com", "ADMIN@EXPRESSFIRMEZA.COM", true, "Admin@123", "1" }
-            );
-
-// Asignar rol Admin al usuario
-            migrationBuilder.InsertData(
-                table: "UserRoles",
-                columns: new[] { "UserId", "RoleId" },
-                values: new object[] { adminUserId, adminRoleId }
-            );
+           
             migrationBuilder.CreateTable(
                 name: "Departments",
                 columns: table => new
@@ -355,6 +334,47 @@ namespace Infrastructure.Migrations
                 table: "Users",
                 column: "NormalizedUserName",
                 unique: true);
+             // --- SEED ADMIN ---
+            var adminRoleId = Guid.NewGuid().ToString();
+            var adminUserId = Guid.NewGuid().ToString();
+
+// Insert role Admin
+            migrationBuilder.InsertData(
+                table: "Roles",
+                columns: new[] { "Id", "Description", "CreatedAt", "Name", "NormalizedName", "ConcurrencyStamp" },
+                values: new object[] { adminRoleId, "Administrator with full access", DateTime.UtcNow, "Admin", "ADMIN", Guid.NewGuid().ToString() }
+            );
+
+// Crear password hash
+            var hasher = new PasswordHasher<ApplicationUser>();
+            var adminUser = new ApplicationUser
+            {
+                Id = adminUserId,
+                FirstName = "Admin",
+                LastName = "User",
+                UserName = "admin@expressfirmeza.com",
+                NormalizedUserName = "ADMIN@EXPRESSFIRMEZA.COM",
+                Email = "admin@expressfirmeza.com",
+                NormalizedEmail = "ADMIN@EXPRESSFIRMEZA.COM",
+                EmailConfirmed = true,
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true
+            };
+            var passwordHash = hasher.HashPassword(adminUser, "Admin@123");
+
+// Insert user Admin
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "FirstName", "LastName", "CreatedAt", "IsActive", "UserName", "NormalizedUserName", "Email", "NormalizedEmail", "EmailConfirmed", "PasswordHash", "SecurityStamp" },
+                values: new object[] { adminUser.Id, adminUser.FirstName, adminUser.LastName, adminUser.CreatedAt, adminUser.IsActive, adminUser.UserName, adminUser.NormalizedUserName, adminUser.Email, adminUser.NormalizedEmail, adminUser.EmailConfirmed, passwordHash, Guid.NewGuid().ToString() }
+            );
+
+// Asignar rol Admin al usuario
+            migrationBuilder.InsertData(
+                table: "UserRoles",
+                columns: new[] { "UserId", "RoleId" },
+                values: new object[] { adminUser.Id, adminRoleId }
+            );
         }
 
         /// <inheritdoc />
