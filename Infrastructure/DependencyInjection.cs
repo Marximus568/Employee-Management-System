@@ -158,8 +158,8 @@ public static class DependencyInjection
                 );
             }
             
-            // Optional: Get model name from env (default: gemini-1.5-flash)
-            string modelName = Environment.GetEnvironmentVariable("GEMINI_MODEL") ?? "gemini-1.5-flash";
+            // Optional: Get model name from env (default: gemini-1.5-flash-002)
+            string modelName = Environment.GetEnvironmentVariable("GEMINI_MODEL") ?? "gemini-1.5-flash-002";
             
             logger.LogInformation("Gemini service initialized with model: {Model}", modelName);
             
