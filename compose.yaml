@@ -55,6 +55,8 @@ services:
       - API_BASE_URL=http://api:8080
     depends_on:
       - api
+    volumes:
+      - frontend-keys:/app/keys
     ports:
       - "5001:8080"
     networks:
@@ -78,6 +80,7 @@ services:
     command: ["dotnet", "test", "Test_Express/Test_Express.csproj"]
 
 volumes:
+  frontend-keys:
   dbdata:
 
 networks:
