@@ -6,56 +6,425 @@
     Layout = "_DashboardLayout";
 }
 
-<div class="crud-header">
-    <h1>Employees</h1>
-    <a asp-page="Create" class="action-btn" style="background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-        <i class="fas fa-plus"></i> Create New
-    </a>
+<div class="employee-index-container">
+    <!-- Header Section -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">
+                <i class="fas fa-users"></i>
+                Employee Management
+            </h1>
+            <p class="page-subtitle">Manage and view all employees in the system</p>
+        </div>
+        <a asp-page="Create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New Employee
+        </a>
+    </div>
+
+    <!-- Search and Filter Bar -->
+    <div class="card mb-3">
+        <div class="card-body" style="padding: var(--spacing-lg);">
+            <div class="search-filter-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search by name, email, or document..." class="search-input">
+                </div>
+                <div class="filter-actions">
+                    <select id="statusFilter" class="form-control" style="width: auto;">
+                        <option value="">All Status</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                        <option value="On Leave">On Leave</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employees Table -->
+    <div class="card">
+        <div class="table-responsive">
+            <table class="employee-table">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Document</th>
+                        <th>Contact</th>
+                        <th>Department</th>
+                        <th>Position</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="employeeTableBody">
+                    @foreach (var employee in Model.Employee)
+                    {
+                        <tr class="employee-row" 
+                            data-name="@employee.FirstName @employee.LastName" 
+                            data-email="@employee.Email" 
+                            data-document="@employee.Document"
+                            data-status="@employee.Status">
+                            <td>
+                                <div class="employee-info">
+                                    <div class="employee-avatar">
+                                        @employee.FirstName.Substring(0, 1)@employee.LastName.Substring(0, 1)
+                                    </div>
+                                    <div>
+                                        <div class="employee-name">@employee.FirstName @employee.LastName</div>
+                                        <div class="employee-meta">ID: @employee.Id</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="text-muted">@employee.Document</span>
+                            </td>
+                            <td>
+                                <div class="contact-info">
+                                    <div><i class="fas fa-envelope text-muted"></i> @employee.Email</div>
+                                    <div><i class="fas fa-phone text-muted"></i> @employee.Phone</div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="department-badge">@employee.Department.Name</span>
+                            </td>
+                            <td>@employee.Position</td>
+                            <td>
+                                <span class="status-badge status-@employee.Status.ToLower().Replace(" ", "-")">
+                                    @employee.Status
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a asp-page="./Details" asp-route-id="@employee.Id" class="btn-icon" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a asp-page="./Edit" asp-route-id="@employee.Id" class="btn-icon" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a asp-page="./Delete" asp-route-id="@employee.Id" class="btn-icon btn-icon-danger" title="Delete">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        @if (!Model.Employee.Any())
+        {
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <h3>No Employees Found</h3>
+                <p>Start by adding your first employee to the system.</p>
+                <a asp-page="Create" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Employee
+                </a>
+            </div>
+        }
+    </div>
 </div>
 
-<div class="crud-table-container">
-    <table class="table" style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr style="background-color: #f8f9fa; border-bottom: 2px solid #e9ecef;">
-                <th style="padding: 12px; text-align: left;">Name</th>
-                <th style="padding: 12px; text-align: left;">Document</th>
-                <th style="padding: 12px; text-align: left;">Email</th>
-                <th style="padding: 12px; text-align: left;">Department</th>
-                <th style="padding: 12px; text-align: left;">Position</th>
-                <th style="padding: 12px; text-align: left;">Status</th>
-                <th style="padding: 12px; text-align: center;">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Employee) {
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 12px;">
-                        @Html.DisplayFor(modelItem => item.FirstName) @Html.DisplayFor(modelItem => item.LastName)
-                    </td>
-                    <td style="padding: 12px;">
-                        @Html.DisplayFor(modelItem => item.Document)
-                    </td>
-                    <td style="padding: 12px;">
-                        @Html.DisplayFor(modelItem => item.Email)
-                    </td>
-                    <td style="padding: 12px;">
-                        @Html.DisplayFor(modelItem => item.Department.Name)
-                    </td>
-                    <td style="padding: 12px;">
-                        @Html.DisplayFor(modelItem => item.Position)
-                    </td>
-                    <td style="padding: 12px;">
-                        <span style="padding: 5px 10px; border-radius: 15px; font-size: 0.85em; background-color: @(item.Status == "Active" ? "#d4edda" : "#f8d7da"); color: @(item.Status == "Active" ? "#155724" : "#721c24");">
-                            @Html.DisplayFor(modelItem => item.Status)
-                        </span>
-                    </td>
-                    <td style="padding: 12px; text-align: center;">
-                        <a asp-page="./Edit" asp-route-id="@item.Id" style="color: #f39c12; margin-right: 10px;"><i class="fas fa-edit"></i></a>
-                        <a asp-page="./Details" asp-route-id="@item.Id" style="color: #3498db; margin-right: 10px;"><i class="fas fa-info-circle"></i></a>
-                        <a asp-page="./Delete" asp-route-id="@item.Id" style="color: #e74c3c;"><i class="fas fa-trash-alt"></i></a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
+@section Scripts {
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', filterTable);
+        document.getElementById('statusFilter').addEventListener('change', filterTable);
+
+        function filterTable() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const rows = document.querySelectorAll('.employee-row');
+
+            rows.forEach(row => {
+                const name = row.dataset.name.toLowerCase();
+                const email = row.dataset.email.toLowerCase();
+                const document = row.dataset.document.toLowerCase();
+                const status = row.dataset.status;
+
+                const matchesSearch = name.includes(searchTerm) || 
+                                    email.includes(searchTerm) || 
+                                    document.includes(searchTerm);
+                const matchesStatus = !statusFilter || status === statusFilter;
+
+                row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+            });
+        }
+    </script>
+}
+
+<style>
+    .employee-index-container {
+        padding: var(--spacing-lg);
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: var(--spacing-xl);
+    }
+
+    .page-title {
+        font-size: var(--font-size-3xl);
+        font-weight: 700;
+        color: var(--color-gray-900);
+        margin-bottom: var(--spacing-xs);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+
+    .page-title i {
+        color: var(--color-primary);
+    }
+
+    .page-subtitle {
+        color: var(--color-gray-600);
+        font-size: var(--font-size-base);
+        margin: 0;
+    }
+
+    .search-filter-bar {
+        display: flex;
+        gap: var(--spacing-md);
+        align-items: center;
+    }
+
+    .search-box {
+        flex: 1;
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-box i {
+        position: absolute;
+        left: var(--spacing-md);
+        color: var(--color-gray-400);
+    }
+
+    .search-input {
+        width: 100%;
+        padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) 2.5rem;
+        border: 1px solid var(--color-gray-300);
+        border-radius: var(--border-radius-md);
+        font-size: var(--font-size-base);
+        transition: all var(--transition-fast);
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: var(--spacing-sm);
+    }
+
+    .employee-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .employee-table thead {
+        background-color: var(--color-gray-50);
+        border-bottom: 2px solid var(--color-gray-200);
+    }
+
+    .employee-table th {
+        padding: var(--spacing-lg);
+        text-align: left;
+        font-weight: 600;
+        color: var(--color-gray-700);
+        font-size: var(--font-size-sm);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .employee-table td {
+        padding: var(--spacing-lg);
+        border-bottom: 1px solid var(--color-gray-200);
+        vertical-align: middle;
+    }
+
+    .employee-table tbody tr {
+        transition: background-color var(--transition-fast);
+    }
+
+    .employee-table tbody tr:hover {
+        background-color: var(--color-gray-50);
+    }
+
+    .employee-info {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+    }
+
+    .employee-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: var(--font-size-sm);
+    }
+
+    .employee-name {
+        font-weight: 600;
+        color: var(--color-gray-900);
+        margin-bottom: 2px;
+    }
+
+    .employee-meta {
+        font-size: var(--font-size-xs);
+        color: var(--color-gray-500);
+    }
+
+    .contact-info {
+        font-size: var(--font-size-sm);
+        color: var(--color-gray-600);
+    }
+
+    .contact-info div {
+        margin-bottom: 4px;
+    }
+
+    .contact-info i {
+        width: 16px;
+        font-size: 12px;
+    }
+
+    .department-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        background-color: var(--color-gray-100);
+        color: var(--color-gray-700);
+        border-radius: var(--border-radius-md);
+        font-size: var(--font-size-sm);
+        font-weight: 500;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: var(--border-radius-md);
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-active {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-inactive {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-on-leave {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: var(--spacing-sm);
+        justify-content: center;
+    }
+
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--border-radius-md);
+        color: var(--color-gray-600);
+        background-color: transparent;
+        transition: all var(--transition-fast);
+        text-decoration: none;
+    }
+
+    .btn-icon:hover {
+        background-color: var(--color-gray-100);
+        color: var(--color-primary);
+    }
+
+    .btn-icon-danger:hover {
+        background-color: #fee;
+        color: var(--color-danger);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: var(--spacing-3xl);
+        color: var(--color-gray-500);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--color-gray-300);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .empty-state h3 {
+        color: var(--color-gray-700);
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .empty-state p {
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .text-muted {
+        color: var(--color-gray-500);
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    @@media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .search-filter-bar {
+            flex-direction: column;
+        }
+
+        .filter-actions {
+            width: 100%;
+        }
+
+        .filter-actions select {
+            width: 100% !important;
+        }
+
+        .employee-table {
+            font-size: var(--font-size-sm);
+        }
+
+        .employee-table th,
+        .employee-table td {
+            padding: var(--spacing-sm);
+        }
+
+        .contact-info {
+            font-size: 11px;
+        }
+    }
+</style>

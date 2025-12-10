@@ -23,19 +23,9 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // AUTHENTICATION CONFIGURATION
 // ========================================
 
-// Configure cookie authentication
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Login";        // Redirect here if user is not authenticated
-        options.LogoutPath = "/Logout";      // Optional logout path
-        options.AccessDeniedPath = "/AccessDenied"; // Optional access denied page
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-        options.SlidingExpiration = true;
-        options.Cookie.HttpOnly = true;
-        options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
-        options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.SameAsRequest;
-    });
+// Authentication is configured in Infrastructure layer via AddIdentity
+// Do NOT add AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme) here
+// as it conflicts with Identity's default scheme ("Identity.Application")
 
 // Data Protection for cookie encryption, key persistence
 builder.Services.AddDataProtection()

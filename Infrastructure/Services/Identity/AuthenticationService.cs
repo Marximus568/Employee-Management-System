@@ -4,11 +4,12 @@ using Domain.Entities;
 using Domain.Models;
 using Application.Interfaces.Identity;
 using Infrastructure.Models;
-// using Infrastructure.Services.Identity.Interface; // Removed to avoid ambiguity if it exists
-using Infrastructure.Services.Identity.Interface; // Keeping for ITokenService? Wait, let's verify if ITokenService is here.
+using Infrastructure.Services.Identity.Interface;
 using Infrastructure.Persistence.Context;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Infrastructure.Services.Identity;
 
@@ -19,19 +20,22 @@ public class AuthenticationService : IAuthenticationService
     private readonly ITokenService _tokenService;
     private readonly ApplicationDbContext _context;
     private readonly IEmailService _emailService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public AuthenticationService(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         ITokenService tokenService,
         ApplicationDbContext context,
-        IEmailService emailService)
+        IEmailService emailService,
+        IHttpContextAccessor httpContextAccessor)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _tokenService = tokenService;
         _context = context;
         _emailService = emailService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request)
@@ -110,18 +114,68 @@ public class AuthenticationService : IAuthenticationService
 
          var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
          if (!result.Succeeded)
-             return new AuthResponseDto { Success = false, ErrorMessage = "Invalid credentials" };
+         {
+             var failureReason = "Invalid credentials";
+             if (result.IsLockedOut) failureReason = "User is locked out";
+             else if (result.IsNotAllowed) failureReason = "User is not allowed to sign in";
+             else if (result.RequiresTwoFactor) failureReason = "Requires Two Factor";
+             
+             Console.WriteLine($"Login failed for {request.Email}. Reason: {failureReason} (Locked: {result.IsLockedOut}, NotAllowed: {result.IsNotAllowed})");
+             return new AuthResponseDto { Success = false, ErrorMessage = failureReason };
+         }
+
+         // Get user's role
+         var roles = await _userManager.GetRolesAsync(user);
+         var role = roles.FirstOrDefault() ?? "User";
 
          var tokens = await _tokenService.GenerateTokensAsync(user, "127.0.0.1");
          tokens.Success = true;
          tokens.FullName = $"{user.FirstName} {user.LastName}";
+         tokens.Role = role; // Add role to response
          return tokens;
     }
 
     public async Task<AuthResponseDto> GetCurrentUserAsync()
     {
-         // Mock implementation for build pass
-         return new AuthResponseDto { Success = false, ErrorMessage = "Not implemented" };
+        try
+        {
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext?.User?.Identity?.IsAuthenticated != true)
+            {
+                return new AuthResponseDto { Success = false, ErrorMessage = "User is not authenticated" };
+            }
+
+            // Get user ID from claims
+            var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return new AuthResponseDto { Success = false, ErrorMessage = "User ID not found in claims" };
+            }
+
+            // Retrieve user from database
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return new AuthResponseDto { Success = false, ErrorMessage = "User not found" };
+            }
+
+            // Get user's role
+            var roles = await _userManager.GetRolesAsync(user);
+            var role = roles.FirstOrDefault() ?? "User";
+
+            return new AuthResponseDto
+            {
+                Success = true,
+                UserId = user.Id,
+                Email = user.Email ?? string.Empty,
+                FullName = $"{user.FirstName} {user.LastName}".Trim(),
+                Role = role
+            };
+        }
+        catch (Exception ex)
+        {
+            return new AuthResponseDto { Success = false, ErrorMessage = $"Error retrieving current user: {ex.Message}" };
+        }
     }
 
     public Task RefreshTokenAsync(RefreshTokenRequestDto request)

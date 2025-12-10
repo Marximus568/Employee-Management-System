@@ -5,72 +5,108 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
-using IAuthenticationService = Application.Interfaces.Identity.IAuthenticationService;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 namespace Front_end.Web.Pages
 {
     public class LoginModel : PageModel
     {
-        private readonly IAuthenticationService _authService;
+        private readonly Microsoft.AspNetCore.Identity.SignInManager<Infrastructure.Models.ApplicationUser> _signInManager;
+        private readonly ILogger<LoginModel> _logger;
 
-        [BindProperty]
-        public LoginDto Input { get; set; } = new LoginDto();
-
-        public string? ErrorMessage { get; set; }
-
-        public LoginModel(IAuthenticationService authService)
+        public LoginModel(
+            Microsoft.AspNetCore.Identity.SignInManager<Infrastructure.Models.ApplicationUser> signInManager,
+            ILogger<LoginModel> logger)
         {
-            _authService = authService;
+            _signInManager = signInManager;
+            _logger = logger;
         }
 
-        public void OnGet() { }
+        [BindProperty]
+        public LoginInputModel Input { get; set; }
 
-        public async Task<IActionResult> OnPostAsync()
+        public string ReturnUrl { get; set; }
+
+        [TempData]
+        public string ErrorMessage { get; set; }
+
+        public class LoginInputModel
         {
-            if (!ModelState.IsValid)
-                return Page();
+            [Required]
+            [EmailAddress]
+            public string Email { get; set; }
 
-            // Attempt login
-            var result = await _authService.LoginAsync(Input);
+            [Required]
+            [DataType(DataType.Password)]
+            public string Password { get; set; }
+        }
 
-            if (!result.Success)
+        public async Task OnGetAsync(string returnUrl = null)
+        {
+            if (!string.IsNullOrEmpty(ErrorMessage))
             {
-                ErrorMessage = result.ErrorMessage;
-                return Page();
+                ModelState.AddModelError(string.Empty, ErrorMessage);
             }
 
-            // Create claims for the authenticated user
-            var claims = new List<Claim>
+            returnUrl ??= Url.Content("~/");
+
+            // Clear the existing external cookie to ensure a clean login process
+            await HttpContext.SignOutAsync(Microsoft.AspNetCore.Identity.IdentityConstants.ExternalScheme);
+
+            ReturnUrl = returnUrl;
+        }
+
+        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        {
+            returnUrl ??= Url.Content("~/");
+
+            if (ModelState.IsValid)
             {
-                new Claim(ClaimTypes.NameIdentifier, result.UserId),
-                new Claim(ClaimTypes.Name, result.FullName ?? Input.Email),
-                new Claim(ClaimTypes.Role, result.Role) // Add role claim
-            };
+                // Use SignInManager to sign in
+                // This automatically handles password hashing, lockout, and cookie creation with correct claims (including SecurityStamp)
+                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, isPersistent: true, lockoutOnFailure: false);
 
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            var authProperties = new AuthenticationProperties
-            {
-                IsPersistent = true, // Keep user logged in
-                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(30)
-            };
-
-            // Sign in the user with cookie
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                authProperties
-            );
-
-            // Optional: redirect based on role
-            if (result.Role == "Admin")
-            {
-                return RedirectToPage("/Dashboard/Index"); // Admin dashboard
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("User logged in.");
+                    
+                    // Check if user is admin to redirect to dashboard
+                    var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
+                    var roles = await _signInManager.UserManager.GetRolesAsync(user);
+                    
+                    if (roles.Contains("Admin"))
+                    {
+                        return RedirectToPage("/Dashboard/Index");
+                    }
+                    
+                    return LocalRedirect(returnUrl);
+                }
+                
+                if (result.RequiresTwoFactor)
+                {
+                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = true });
+                }
+                
+                if (result.IsLockedOut)
+                {
+                    _logger.LogWarning("User account locked out.");
+                    return RedirectToPage("./Lockout");
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    return Page();
+                }
             }
-            else
-            {
-                return RedirectToPage("/Index"); // Regular user home
-            }
+
+            // If we got this far, something failed, redisplay form
+            return Page();
         }
     }
 }

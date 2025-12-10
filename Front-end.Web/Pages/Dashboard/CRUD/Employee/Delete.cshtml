@@ -2,117 +2,231 @@
 @model Front_end.Web.Pages.Dashboard.CRUD.Employee.DeleteModel
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Delete Employee";
     Layout = "_DashboardLayout";
 }
 
-<div class="crud-header">
-    <h1>Delete Employee</h1>
-     <a asp-page="./Index" class="action-btn" style="background-color: #95a5a6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-        <i class="fas fa-arrow-left"></i> Back to List
-    </a>
+<div class="delete-container">
+    <div class="card delete-card">
+        <div class="delete-header">
+            <div class="warning-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h1 class="delete-title">Delete Employee</h1>
+            <p class="delete-warning">This action cannot be undone. Are you sure you want to delete this employee?</p>
+        </div>
+
+        <div class="employee-summary">
+            <div class="employee-info-delete">
+                <div class="employee-avatar-delete">
+                    @Model.Employee.FirstName.Substring(0, 1)@Model.Employee.LastName.Substring(0, 1)
+                </div>
+                <div>
+                    <h2 class="employee-name-delete">@Model.Employee.FirstName @Model.Employee.LastName</h2>
+                    <p class="employee-details-delete">
+                        @Model.Employee.Position • @Model.Employee.Department.Name
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="employee-data">
+            <div class="data-grid">
+                <div class="data-item">
+                    <label>Document</label>
+                    <p>@Model.Employee.Document</p>
+                </div>
+                <div class="data-item">
+                    <label>Email</label>
+                    <p>@Model.Employee.Email</p>
+                </div>
+                <div class="data-item">
+                    <label>Phone</label>
+                    <p>@Model.Employee.Phone</p>
+                </div>
+                <div class="data-item">
+                    <label>Hire Date</label>
+                    <p>@Model.Employee.HireDate.ToString("MMMM dd, yyyy")</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="delete-actions">
+            <form method="post" style="display: inline;">
+                <input type="hidden" asp-for="Employee.Id" />
+                <button type="submit" class="btn btn-danger btn-lg">
+                    <i class="fas fa-trash-alt"></i> Yes, Delete Employee
+                </button>
+            </form>
+            <a asp-page="./Index" class="btn btn-secondary btn-lg">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </div>
 </div>
 
-<div class="crud-table-container" style="border-left: 5px solid #e74c3c;"/>
-<h3 class="text-danger">Are you sure you want to delete this employee?</h3>
-<p class="text-muted">This action cannot be undone.</p>
-<div>
-    <hr />
-    <dl class="row" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Employee.Position)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Employee.Position)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Employee.Salary)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Employee.Salary)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Employee.HireDate)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Employee.HireDate)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Employee.Status)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Employee.Status)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Employee.Department)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Employee.Department.Name)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Employee.Document)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Employee.Document)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Employee.FirstName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Employee.FirstName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Employee.LastName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Employee.LastName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Employee.BirthDate)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Employee.BirthDate)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Employee.Address)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Employee.Address)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Employee.Phone)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Employee.Phone)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Employee.Email)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Employee.Email)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Employee.CreatedAt)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Employee.CreatedAt)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Employee.UpdatedAt)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Employee.UpdatedAt)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Employee.IsActive)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Employee.IsActive)
-        </dd>
-    </dl>
-    <form method="post">
-        <input type="hidden" asp-for="Employee.Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-page="./Index">Back to List</a>
-    </form>
-</div>
+<style>
+    .delete-container {
+        max-width: 700px;
+        margin: var(--spacing-2xl) auto;
+        padding: var(--spacing-lg);
+    }
+
+    .delete-card {
+        border: 2px solid var(--color-danger);
+        box-shadow: 0 10px 30px rgba(239, 68, 68, 0.1);
+    }
+
+    .delete-header {
+        text-align: center;
+        padding: var(--spacing-2xl) var(--spacing-xl);
+        background: linear-gradient(135deg, #fee 0%, #fdd 100%);
+        border-bottom: 2px solid var(--color-danger);
+    }
+
+    .warning-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto var(--spacing-lg);
+        background-color: var(--color-danger);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: pulse 2s infinite;
+    }
+
+    .warning-icon i {
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    @@keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+        }
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+        }
+    }
+
+    .delete-title {
+        font-size: var(--font-size-2xl);
+        font-weight: 700;
+        color: var(--color-danger);
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .delete-warning {
+        font-size: var(--font-size-base);
+        color: var(--color-gray-700);
+        margin: 0;
+        font-weight: 500;
+    }
+
+    .employee-summary {
+        padding: var(--spacing-xl);
+        background-color: var(--color-gray-50);
+        border-bottom: 1px solid var(--color-gray-200);
+    }
+
+    .employee-info-delete {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-lg);
+    }
+
+    .employee-avatar-delete {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: var(--font-size-xl);
+    }
+
+    .employee-name-delete {
+        font-size: var(--font-size-xl);
+        font-weight: 700;
+        color: var(--color-gray-900);
+        margin-bottom: 4px;
+    }
+
+    .employee-details-delete {
+        font-size: var(--font-size-sm);
+        color: var(--color-gray-600);
+        margin: 0;
+    }
+
+    .employee-data {
+        padding: var(--spacing-xl);
+    }
+
+    .data-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-lg);
+    }
+
+    .data-item label {
+        display: block;
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        color: var(--color-gray-600);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+
+    .data-item p {
+        font-size: var(--font-size-base);
+        color: var(--color-gray-900);
+        margin: 0;
+    }
+
+    .delete-actions {
+        padding: var(--spacing-xl);
+        background-color: var(--color-gray-50);
+        border-top: 1px solid var(--color-gray-200);
+        display: flex;
+        gap: var(--spacing-md);
+        justify-content: center;
+    }
+
+    .btn-danger {
+        background-color: var(--color-danger);
+        color: white;
+        border: none;
+    }
+
+    .btn-danger:hover {
+        background-color: #dc2626;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+    }
+
+    @@media (max-width: 768px) {
+        .data-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .delete-actions {
+            flex-direction: column;
+        }
+
+        .delete-actions .btn,
+        .delete-actions form {
+            width: 100%;
+        }
+
+        .delete-actions button {
+            width: 100%;
+        }
+    }
+</style>
